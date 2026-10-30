@@ -1,0 +1,20 @@
+---
+# Raspberry Pi overrides, applied after compose.yaml and compose.prod.yaml.
+# The image is built by the CI and pulled from GHCR: nothing is built on the Pi.
+services:
+  php:
+    image: ${IMAGE_REPOSITORY:-ghcr.io/carlosgude/alavista}:${IMAGE_TAG:?set IMAGE_TAG}
+    environment:
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      # FrankenPHP starts 2 workers per CPU by default, too many for 1 GB of RAM
+      FRANKENPHP_WORKER_CONFIG: num 2
+    volumes:
+      # Lets Caddy get the certificate of the *.ts.net name from Tailscale
+      - /var/run/tailscale:/var/run/tailscale
+
+  database:
+    restart: unless-stopped
+    # Starting point for 1 GB of RAM, to be tuned with real measurements
+    command: [postgres, -c, shared_buffers=64MB, -c, max_connections=20]

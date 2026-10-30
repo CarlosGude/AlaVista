@@ -1,0 +1,63 @@
+---
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Image tag to deploy (sha-<commit>). Use an older one to roll back.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-raspberry
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Raspberry Pi
+    runs-on: ubuntu-latest
+    environment: raspberry
+    env:
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      PI_HOST: ${{ secrets.PI_HOST }}
+    steps:
+      - name: Validate the image tag
+        run: |
+          if [[ ! ${IMAGE_TAG} =~ ^sha-[0-9a-f]{7,40}$ ]]; then
+            echo "::error::Invalid image tag: ${IMAGE_TAG}"
+            exit 1
+          fi
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Connect to the tailnet
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: ${{ secrets.PI_HOST }}
+      - name: Configure SSH
+        # Tailscale SSH authenticates the runner by its tailnet identity: no keys involved
+        run: |
+          mkdir -p ~/.ssh
+          printf 'Host *\n  BatchMode yes\n  StrictHostKeyChecking accept-new\n' >>~/.ssh/config
+      - name: Copy the deployment files
+        run: |
+          tar -c compose.yaml compose.prod.yaml -C deploy/raspberry compose.pi.yaml deploy.sh \
+            | ssh "deploy@${PI_HOST}" tar -x -C /opt/alavista
+      - name: Deploy
+        run: |
+          # The tag is expanded on the runner on purpose, it was validated in the first step
+          # shellcheck disable=SC2029
+          ssh "deploy@${PI_HOST}" /opt/alavista/deploy.sh "${IMAGE_TAG}"

@@ -4,3 +4,8 @@ rules:
     config:
       policies:
         "*": ref-pin
+  # actionlint does not understand the "$/..." self-repository syntax yet. The only
+  # local "uses:" is a reusable workflow call, which GitHub resolves from the same
+  # commit rather than from the workspace.
+  self-repository:
+    disable: true
