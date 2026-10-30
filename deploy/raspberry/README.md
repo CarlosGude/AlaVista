@@ -4,7 +4,7 @@ AlaVista runs on a Raspberry Pi 3 Model B (1 GB of RAM) as a playground for cons
 
 ## How it works
 
-[`flash.sh`](flash.sh) writes an SD card that sets up the Pi on its own. On the first boot, the Pi joins the tailnet, installs Docker, deploys the image of the commit you flashed from, and sends a notification with [ntfy](https://ntfy.sh). After that, every push to `main` is deployed:
+[`flash.sh`](flash.sh) writes an SD card that sets up the Pi on its own. On the first boot, the Pi joins the tailnet, installs Docker, deploys the image of the commit you flashed from, and sends a notification with [ntfy](https://ntfy.sh). [`startup.md`](startup.md) explains this process step by step. After that, every push to `main` is deployed:
 
 1. The `build` job of the [CI](../../.github/workflows/ci.yaml) builds the production image on a native arm64 runner and pushes it to GHCR as `ghcr.io/carlosgude/alavista:sha-<commit>`.
 2. The [Deploy workflow](../../.github/workflows/deploy.yaml) joins the tailnet as `tag:ci`, copies the Compose files and [`deploy.sh`](deploy.sh) to `/opt/alavista` over Tailscale SSH, and runs it.
