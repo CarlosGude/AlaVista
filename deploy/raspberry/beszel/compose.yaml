@@ -1,0 +1,19 @@
+---
+# Beszel hub, the monitoring dashboard of the Raspberry Pi. It runs on your
+# computer, not on the Pi, so that it does not take memory from the
+# measurements. See deploy/raspberry/README.md.
+services:
+  beszel:
+    # Keep the same version as the agent in provision.sh
+    image: henrygd/beszel:0.21.1
+    restart: unless-stopped
+    environment:
+      APP_URL: http://localhost:8090
+    ports:
+      # Only reachable from this computer
+      - 127.0.0.1:8090:8090
+    volumes:
+      - beszel_data:/beszel_data
+
+volumes:
+  beszel_data:

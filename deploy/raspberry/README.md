@@ -64,9 +64,29 @@ Migrations run when the php container starts. Keep them backward compatible, so 
 2. Add the `RASPBERRY_DEPLOY_ENABLED` repository variable with the value `true`. Until then, the CI builds and publishes the image but does not deploy it.
 3. The Pi pulls the image without credentials, so the `alavista` package must be public. Check its visibility in the package settings after the first build.
 
+### 4. Monitoring with Beszel (optional)
+
+[Beszel](https://beszel.dev) keeps the history of the CPU, memory, swap, disk, network and temperature of the Pi, and of the usage of each container. The dashboard (the hub) runs on your computer and only a small agent runs on the Pi, so that the monitoring does not skew the measurements.
+
+1. Start the hub on your computer, then open <http://localhost:8090> and create your account:
+
+   ```console
+   docker compose -f deploy/raspberry/beszel/compose.yaml up -d
+   ```
+
+2. Select **Add system**, with the `*.ts.net` name of the Pi as host and `45876` as port, and copy the public key it shows.
+3. Run the provisioning script again with that key:
+
+   ```console
+   ssh -t <user>@<hostname>.local "sudo BESZEL_KEY='<public key>' ./provision.sh"
+   ```
+
+The hub connects to the agent over Tailscale, so Tailscale must be running on your computer. If your access controls do not let your devices reach every port of the Pi, allow `tag:alavista:45876`. If the hub cannot resolve the `*.ts.net` name, use the Tailscale IP of the Pi instead (`tailscale ip -4 alavista`). The agent only accepts connections from the hub that owns the key.
+
 ## Operations
 
 - **Roll back:** run the Deploy workflow manually from the Actions tab, with an older `sha-<commit>` tag.
 - **Inspect:** `sudo -iu deploy`, then `cd /opt/alavista` and use `docker compose ps`, `docker compose logs php` or `docker stats`.
-- **Measure:** `free -h`, `vcgencmd measure_temp` and `vcgencmd get_throttled`. Any value other than `throttled=0x0` means under-voltage or thermal throttling, which skews the measurements.
+- **Measure:** the Beszel dashboard keeps the history. For a quick look on the Pi, use `free -h`, `vcgencmd measure_temp` and `vcgencmd get_throttled`. Any value other than `throttled=0x0` means under-voltage or thermal throttling, which skews the measurements.
 - **Tune:** the number of workers and the PostgreSQL settings are in [`compose.pi.yaml`](compose.pi.yaml).
+- **Update Beszel:** change the version in [`provision.sh`](provision.sh) and in [`beszel/compose.yaml`](beszel/compose.yaml). Then run `provision.sh` again on the Pi, and `docker compose -f deploy/raspberry/beszel/compose.yaml up -d` on your computer.

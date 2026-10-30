@@ -2,12 +2,16 @@
 # Prepares a fresh Raspberry Pi OS Lite (64-bit) to run AlaVista.
 # Every step checks its current state first, so it is safe to run it again.
 # Usage: sudo ./provision.sh
+#        sudo BESZEL_KEY='<public key of the hub>' ./provision.sh
 set -euo pipefail
 
 APP_DIR=/opt/alavista
 DEPLOY_USER=deploy
 TS_HOSTNAME="${TS_HOSTNAME:-alavista}"
 TS_TAG="${TS_TAG:-tag:alavista}"
+BESZEL_DIR=/opt/beszel-agent
+# Keep the same version as the hub in beszel/compose.yaml
+BESZEL_VERSION=0.21.1
 
 if [[ $(id -u) -ne 0 ]]; then
 	echo "Run it as root: sudo $0" >&2
@@ -83,6 +87,39 @@ ADMIN_EMAILS=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 EOF
+fi
+
+echo "==> Beszel agent"
+# Installed once BESZEL_KEY is given. Later runs keep the key and update the agent.
+if [[ -n ${BESZEL_KEY:-} || -f ${BESZEL_DIR}/.env ]]; then
+	mkdir -p "${BESZEL_DIR}"
+	if [[ -n ${BESZEL_KEY:-} ]]; then
+		printf "BESZEL_KEY='%s'\n" "${BESZEL_KEY}" >"${BESZEL_DIR}/.env"
+	fi
+	# YAML is indented with spaces, not tabs: editorconfig-checker-disable
+	cat >"${BESZEL_DIR}/compose.yaml" <<EOF
+# Written by provision.sh, change it there
+services:
+  beszel-agent:
+    image: henrygd/beszel-agent:${BESZEL_VERSION}
+    restart: unless-stopped
+    # Required to read the network stats of the host
+    network_mode: host
+    volumes:
+      - data:/var/lib/beszel-agent
+      # Per-container CPU and memory
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LISTEN: 45876
+      # Public key of the hub: only that hub can connect
+      KEY: \${BESZEL_KEY:?set BESZEL_KEY}
+volumes:
+  data:
+EOF
+	# editorconfig-checker-enable
+	docker compose --file "${BESZEL_DIR}/compose.yaml" up --detach --quiet-pull --wait
+else
+	echo "Skipped: run it again with BESZEL_KEY to enable the monitoring"
 fi
 
 cat <<EOF
