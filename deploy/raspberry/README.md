@@ -17,6 +17,8 @@ Migrations run when the php container starts. Keep them backward compatible, so 
 
 ## One-time setup
 
+[`steps.md`](steps.md) lists every step in order, as a checklist.
+
 ### 1. Tailscale
 
 1. In the [DNS settings](https://login.tailscale.com/admin/dns), enable MagicDNS and HTTPS certificates.

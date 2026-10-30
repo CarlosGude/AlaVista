@@ -1,6 +1,6 @@
 # Start-up of the Raspberry Pi
 
-This page explains what happens from a blank SD card to AlaVista running on the Pi, and how to follow it. The steps to run, and the one-time setup of Tailscale and GitHub, are in the [deployment guide](README.md).
+This page explains what happens from a blank SD card to AlaVista running on the Pi, and how to follow it. The steps to follow, including the one-time setup of Tailscale and GitHub, are in [`steps.md`](steps.md).
 
 ## Overview
 
