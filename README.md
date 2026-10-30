@@ -6,7 +6,7 @@ AlaVista is a web app for discovering the aircraft flying near you. Open it in y
 
 The project is designed to run on a Raspberry Pi and use flight data from external APIs, without requiring an ADS-B receiver or antenna.
 
-> **Status: planning.** This README describes the intended application. The automated deployment to the Raspberry Pi is in place, and features and setup instructions will be documented as they are implemented.
+> **Status: planning.** This README describes the intended application. The local environment and the automated deployment to the Raspberry Pi are in place, and features will be documented as they are implemented.
 
 ## First version
 
@@ -52,7 +52,47 @@ These ideas will be considered after the first usable version is running.
 
 ## Running locally
 
-The application scaffold is not available yet. Installation, configuration and development commands will be added alongside the implementation.
+The development environment runs on Docker Compose: FrankenPHP with Symfony, and PostgreSQL. You need Docker, and ports 80 and 443 free.
+
+1. Build the images and start the containers. The first build takes a few minutes:
+
+   ```console
+   docker compose build --pull
+   docker compose up --wait
+   ```
+
+2. Open <https://localhost> and accept the self-signed certificate. To trust it once and for all on macOS:
+
+   ```console
+   docker compose cp php:/data/caddy/pki/authorities/local/root.crt /tmp/alavista-root.crt
+   sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/alavista-root.crt
+   ```
+
+The migrations run when the php container starts. The code is mounted in the container, and FrankenPHP reloads it when it changes.
+
+To sign in to the admin at <https://localhost/admin>, create a `.env.local` file, which Git ignores, with your Google account and a Google OAuth client. Add `https://localhost/connect/google/check` to the authorized redirect URIs of the client:
+
+```shell
+ADMIN_EMAILS=you@example.com
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+```
+
+Other tasks:
+
+- **Console:** `docker compose exec php bin/console <command>`, such as `make:migration`.
+- **Tests:** create the test database the first time, and migrate it after each new migration. Then run PHPUnit and Behat:
+
+  ```console
+  docker compose exec php bin/console -e test doctrine:database:create --if-not-exists
+  docker compose exec php bin/console -e test doctrine:migrations:migrate --no-interaction
+  docker compose exec php bin/phpunit
+  docker compose exec php vendor/bin/behat
+  ```
+
+- **Debugging:** Xdebug is off by default, because in worker mode it connects on every request. Start the containers with `XDEBUG_MODE=develop,debug docker compose up --wait`, and in PhpStorm, create a server named `alavista` that maps the project directory to `/app`.
+- **Other ports:** if 80 or 443 are taken, start it with `HTTP_PORT=8000 HTTPS_PORT=8443 HTTP3_PORT=8443 docker compose up --wait` and open <https://localhost:8443>.
+- **Stop:** `docker compose down --remove-orphans`.
 
 ## Deployment
 
