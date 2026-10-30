@@ -27,7 +27,9 @@ deploy() {
 	# Chained with && because errexit is ignored inside the caller's if condition
 	IMAGE_TAG="$1" docker compose pull --quiet &&
 		IMAGE_TAG="$1" docker compose up --detach --no-build --wait --wait-timeout 300 --remove-orphans &&
-		curl --fail --silent --show-error --max-time 10 --output /dev/null "${smoke_url}"
+		# The first request waits for Caddy to get the certificate from Tailscale
+		curl --fail --silent --show-error --max-time 60 --retry 3 --retry-all-errors \
+			--output /dev/null "${smoke_url}"
 }
 
 if deploy "${tag}"; then

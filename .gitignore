@@ -20,3 +20,6 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Settings and secrets of deploy/raspberry/flash.sh
+/deploy/raspberry/flash.env.local

@@ -3,7 +3,11 @@
 # Every step checks its current state first, so it is safe to run it again.
 # Usage: sudo ./provision.sh
 #        sudo BESZEL_KEY='<public key of the hub>' ./provision.sh
+# Optional environment variables, used by firstboot.sh to run it unattended:
+# TS_AUTHKEY joins the tailnet without opening a link, and ADMIN_EMAILS,
+# GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET fill in a new .env.
 set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
 
 APP_DIR=/opt/alavista
 DEPLOY_USER=deploy
@@ -25,7 +29,8 @@ fi
 
 echo "==> System packages"
 apt-get update
-apt-get upgrade --yes
+# Keeps the configuration files changed on the first boot without asking
+apt-get upgrade --yes -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold
 apt-get install --yes --no-install-recommends ca-certificates curl jq openssl
 
 echo "==> Docker"
@@ -59,8 +64,9 @@ if ! grep -q '^TS_PERMIT_CERT_UID=33$' /etc/default/tailscaled; then
 	systemctl restart tailscaled
 fi
 if [[ $(tailscale status --json | jq -r .BackendState) != Running ]]; then
-	# Prints a link to authenticate the Pi in your tailnet
-	tailscale up --ssh --hostname "${TS_HOSTNAME}" --advertise-tags "${TS_TAG}"
+	# Without an auth key, it prints a link to authenticate the Pi in your tailnet
+	tailscale up --ssh --hostname "${TS_HOSTNAME}" --advertise-tags "${TS_TAG}" \
+		${TS_AUTHKEY:+--auth-key "${TS_AUTHKEY}"}
 fi
 server_name="$(tailscale status --json | jq -r '.Self.DNSName | rtrimstr(".")')"
 
@@ -83,9 +89,9 @@ APP_SECRET=$(openssl rand -hex 32)
 POSTGRES_PASSWORD=$(openssl rand -hex 24)
 CADDY_MERCURE_JWT_SECRET=$(openssl rand -hex 32)
 # Fill in to enable the admin login
-ADMIN_EMAILS=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+ADMIN_EMAILS=${ADMIN_EMAILS:-}
+GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
 EOF
 fi
 

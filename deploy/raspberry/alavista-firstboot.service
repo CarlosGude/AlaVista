@@ -1,0 +1,15 @@
+# Installed by cloud-init on the first boot of an SD card written by flash.sh.
+# It runs on every boot until firstboot.sh succeeds and removes itself.
+[Unit]
+Description=AlaVista first boot setup
+Wants=network-online.target
+After=network-online.target cloud-final.service
+ConditionPathExists=/boot/firmware/alavista/firstboot.sh
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /boot/firmware/alavista/firstboot.sh
+TimeoutStartSec=2h
+
+[Install]
+WantedBy=multi-user.target
