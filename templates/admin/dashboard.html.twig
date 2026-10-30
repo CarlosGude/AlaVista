@@ -1,0 +1,12 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title 'Dashboard' %}
+
+{% block main %}
+    <p>Welcome, {{ app.user.name ?? app.user.userIdentifier }}.</p>
+
+    <p>
+        <a href="{{ path('admin_user_index') }}">{{ user_count }} {{ user_count == 1 ? 'user' : 'users' }}</a>
+        can sign in to the admin.
+    </p>
+{% endblock %}

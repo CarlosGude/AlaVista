@@ -1,0 +1,9 @@
+{% extends '@EasyAdmin/page/login.html.twig' %}
+
+{% block page_title 'AlaVista' %}
+
+{% block login_form_wrapper %}
+    <twig:ea:Button htmlElement="a" href="{{ path('connect_google_start') }}" variant="primary" size="lg" isBlock>
+        Sign in with Google
+    </twig:ea:Button>
+{% endblock login_form_wrapper %}

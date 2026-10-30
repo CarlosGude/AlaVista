@@ -1,0 +1,32 @@
+{
+    "name": "Symfony Docker",
+    "dockerComposeFile": [
+        "../compose.yaml",
+        "../compose.override.yaml",
+        "compose.devcontainer.yaml"
+    ],
+    "service": "php",
+    "workspaceFolder": "/app",
+    "remoteUser": "nonroot",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "symfony.language-tools",
+                "bmewburn.vscode-intelephense-client",
+                "xdebug.php-debug"
+            ],
+            "settings": {
+                "launch": {
+                    "version": "0.2.0",
+                    "configurations": [
+                        {
+                            "name": "Debug PHP",
+                            "type": "php",
+                            "request": "launch"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
