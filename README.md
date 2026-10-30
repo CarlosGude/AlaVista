@@ -6,7 +6,7 @@ AlaVista is a web app for discovering the aircraft flying near you. Open it in y
 
 The project is designed to run on a Raspberry Pi and use flight data from external APIs, without requiring an ADS-B receiver or antenna.
 
-> **Status: planning.** This README describes the intended application. Features, setup instructions and deployment workflows will be documented as they are implemented.
+> **Status: planning.** This README describes the intended application. The automated deployment to the Raspberry Pi is in place, and features and setup instructions will be documented as they are implemented.
 
 ## First version
 
@@ -47,13 +47,16 @@ The initial scope is a small application for personal use: one location, a confi
 - Notifications when an aircraft enters the selected area.
 - Aircraft and airline details.
 - Progressive Web App support.
-- Automated deployment to the Raspberry Pi.
 
 These ideas will be considered after the first usable version is running.
 
 ## Running locally
 
 The application scaffold is not available yet. Installation, configuration and development commands will be added alongside the implementation.
+
+## Deployment
+
+Every push to `main` that passes the CI is deployed to a Raspberry Pi over Tailscale. The [deployment guide](deploy/raspberry/README.md) explains how it works, and [`steps.md`](deploy/raspberry/steps.md) lists every step to set up the Pi from scratch.
 
 ## Author
 
