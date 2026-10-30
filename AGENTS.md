@@ -26,7 +26,7 @@ because it isn't installed yet; installing it is one command.
 
 ## Conventions
 
-Follow https://symfony.com/doc/current/best_practices.html to write idiomatic
+Follow <https://symfony.com/doc/current/best_practices.html> to write idiomatic
 Symfony:
 
 - Use PHP attributes for framework metadata, and not only on controllers:
@@ -57,7 +57,7 @@ Three specifics worth spelling out, because they are easy to get wrong:
   parsing.
 - Use constructor property promotion, and `readonly` for DTOs and value objects.
 - Use `symfony/lock` (`LockFactory`) for mutual exclusion. A hand-built flag or
-  lock file looks fine in review and is usually wrong under concurrency.
+  lockfile looks fine in review and is usually wrong under concurrency.
 
 ## Everyday workflow
 
@@ -102,5 +102,5 @@ things up in the project instead of relying on memory:
 - `bin/console lint:container`, plus `lint:twig templates/` and
   `lint:yaml config/` where those packages are installed: validate before running.
 - Read the installed source and docblocks under `vendor/`.
-- Docs: https://symfony.com/doc/current/ (switch to the version matching
+- Docs: <https://symfony.com/doc/current/> (switch to the version matching
   `composer.json` if it differs).

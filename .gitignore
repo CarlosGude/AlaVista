@@ -1,3 +1,6 @@
+# IDE and OS files
+/.idea/
+.DS_Store
 
 ###> symfony/framework-bundle ###
 /.env.local

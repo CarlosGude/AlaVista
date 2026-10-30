@@ -19,14 +19,14 @@ The project is designed to run on a Raspberry Pi and use flight data from extern
 
 ## Planned stack
 
-| Component | Technology |
-| --- | --- |
-| Backend | PHP, Symfony and FrankenPHP |
-| Web interface | Twig with JavaScript for the map and browser interactions |
-| External API integration | [IntegrationEngine](https://github.com/CarlosGude/integrationEngine) |
-| Development environment | Docker Compose and Xdebug |
-| CI and deployment automation | GitHub Actions |
-| Deployment target | Raspberry Pi 3 Model B |
+| Component                    | Technology                                                           |
+| ---------------------------- | -------------------------------------------------------------------- |
+| Backend                      | PHP, Symfony and FrankenPHP                                          |
+| Web interface                | Twig with JavaScript for the map and browser interactions            |
+| External API integration     | [IntegrationEngine](https://github.com/CarlosGude/integrationEngine) |
+| Development environment      | Docker Compose and Xdebug                                            |
+| CI and deployment automation | GitHub Actions                                                       |
+| Deployment target            | Raspberry Pi 3 Model B                                               |
 
 ## Flight data
 

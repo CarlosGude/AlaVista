@@ -80,3 +80,14 @@ jobs:
           VALIDATE_BIOME_FORMAT: false
           VALIDATE_BIOME_LINT: false
           VALIDATE_PYTHON_BLACK: false
+          # The PHP linters need "composer install", which fails with the PHP shipped in the
+          # super-linter image (no ext-xml). PHP is checked in the php container instead.
+          VALIDATE_PHP_BUILTIN: false
+          VALIDATE_PHP_PHPCS: false
+          VALIDATE_PHP_PHPSTAN: false
+          VALIDATE_PHP_PSALM: false
+          # Prettier would indent the Flex recipe markers and rewrite the Symfony config style;
+          # yamllint still validates the YAML files
+          VALIDATE_YAML_PRETTIER: false
+          # Generated files
+          FILTER_REGEX_EXCLUDE: .*/(composer\.lock|symfony\.lock|config/reference\.php)$

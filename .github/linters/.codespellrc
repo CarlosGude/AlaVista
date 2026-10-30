@@ -1,0 +1,5 @@
+[codespell]
+check-hidden =
+skip = package-lock.json,*/package-lock.json,*/go.mod,*/go.sum,*.log,.git
+# Author surname, not a typo
+ignore-words-list = gude

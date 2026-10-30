@@ -4,7 +4,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.5.12",
+        "php": ">=8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "carlosgude/integration-engine": "^9.4",
